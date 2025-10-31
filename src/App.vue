@@ -26,17 +26,11 @@ const handleAuthenticated = () => {
 body {
   margin: 0;
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background: linear-gradient(120deg, #e0f2fe 0%, #f8fafc 30%, #eff6ff 100%);
-  padding: clamp(1.5rem, 4vw, 3rem);
 }
 
 #app {
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  min-height: 100vh;
 }
 </style>
