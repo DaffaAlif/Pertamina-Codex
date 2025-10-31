@@ -35,9 +35,9 @@
             <span role="listitem" class="inline-flex items-center gap-1 rounded-full bg-slate-900/5 px-3 py-1">
               <strong class="font-semibold text-brand-dark">Regional:</strong> {{ dataset.region }}
             </span>
-            <span role="listitem" class="inline-flex items-center gap-1 rounded-full bg-slate-900/5 px-3 py-1">
+            <!-- <span role="listitem" class="inline-flex items-center gap-1 rounded-full bg-slate-900/5 px-3 py-1">
               <strong class="font-semibold text-brand-dark">Updated:</strong> {{ formatDate(dataset.lastUpdated) }}
-            </span>
+            </span> -->
           </div>
 
           <div class="mt-4 flex flex-wrap gap-2" role="list">
@@ -123,8 +123,8 @@
 
                 <dl class="mt-4 grid grid-cols-2 gap-4 text-xs text-slate-600 sm:grid-cols-3 lg:grid-cols-5">
                   <div class="flex flex-col gap-1">
-                    <dt class="font-semibold text-brand-dark">Date</dt>
-                    <dd>{{ formatDate(record.date) }}</dd>
+                    <!-- <dt class="font-semibold text-brand-dark">Date</dt>
+                    <dd>{{ formatDate(record.date) }}</dd> -->
                   </div>
                   <div class="flex flex-col gap-1">
                     <dt class="font-semibold text-brand-dark">Owner</dt>
