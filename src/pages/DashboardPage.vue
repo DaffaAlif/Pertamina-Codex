@@ -153,28 +153,93 @@
           </article>
         </div>
       </section>
+
+      <section class="datasets" aria-label="Featured datasets">
+        <header class="datasets__header">
+          <div>
+            <h2>Featured Datasets</h2>
+            <p>{{ datasetCount }} curated data products</p>
+          </div>
+
+          <p class="datasets__hint">Select a dataset to explore rich metadata and records.</p>
+        </header>
+
+        <div class="datasets__list">
+          <article
+            v-for="dataset in availableDatasets"
+            :key="dataset.id"
+            class="dataset-card"
+            role="button"
+            tabindex="0"
+            :aria-label="`Open ${dataset.title}`"
+            @click="openDataset(dataset.id)"
+            @keyup.enter="openDataset(dataset.id)"
+            @keyup.space.prevent="openDataset(dataset.id)"
+          >
+            <header class="dataset-card__header">
+              <span class="dataset-card__domain">{{ dataset.domain }}</span>
+              <span class="dataset-card__updated">Updated {{ formatDate(dataset.lastUpdated) }}</span>
+            </header>
+
+            <h3 class="dataset-card__title">{{ dataset.title }}</h3>
+            <p class="dataset-card__summary">{{ dataset.summary }}</p>
+
+            <ul class="dataset-card__tags" role="list">
+              <li v-for="tag in dataset.tags" :key="tag">{{ tag }}</li>
+            </ul>
+
+            <footer class="dataset-card__footer">
+              <div class="dataset-card__stat">
+                <span class="dataset-card__stat-value">{{ dataset.heroStat }}</span>
+                <span class="dataset-card__stat-label">{{ dataset.heroLabel }}</span>
+              </div>
+
+              <div class="dataset-card__cta" aria-hidden="true">
+                <span>View dataset</span>
+                <svg viewBox="0 0 16 16">
+                  <path
+                    d="M5.22 3.97a.75.75 0 0 1 1.06 0L10 7.69 6.28 11.4a.75.75 0 1 1-1.06-1.06l2.47-2.47-2.47-2.46a.75.75 0 0 1 0-1.06Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </div>
+            </footer>
+          </article>
+        </div>
+      </section>
     </section>
   </main>
 </template>
 
 <script setup>
 import { ref } from 'vue';
+import { datasetCategories as categories, datasets as availableDatasets } from '../data/datasets.js';
+import { useRouter } from '../router/simpleRouter.js';
 
 const filterOptions = ['Value', 'Date Added', 'Usage', 'Team'];
 const labels = ['Value', 'Efficiency', 'Reliability', 'Costs', 'Sustainability'];
 const selectedFilter = ref(filterOptions[0]);
 const activeLabel = ref(labels[0]);
 
-const categories = [
-  { name: 'Production', datasets: 85, icon: 'cog' },
-  { name: 'Reservoirs', datasets: 42, icon: 'droplet' },
-  { name: 'Connectivity', datasets: 29, icon: 'network' },
-  { name: 'Exploration', datasets: 64, icon: 'radar' },
-  { name: 'Analytics', datasets: 91, icon: 'analytics' },
-  { name: 'Safety & Risk', datasets: 37, icon: 'shield' },
-  { name: 'Geospatial', datasets: 53, icon: 'globe' },
-  { name: 'Infrastructure', datasets: 48, icon: 'pipeline' },
-];
+const datasetCount = availableDatasets.length;
+const router = useRouter();
+
+const openDataset = (id) => {
+  router.push(`/datasets/${encodeURIComponent(id)}`);
+};
+
+const formatDate = (value) => {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
 </script>
 
 <style scoped>
@@ -427,6 +492,153 @@ h1 {
   font-weight: 500;
 }
 
+.datasets {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.datasets__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.datasets__header h2 {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.4vw, 1.8rem);
+}
+
+.datasets__header p {
+  margin: 0.25rem 0 0;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.datasets__hint {
+  margin: 0;
+  color: #475569;
+  font-size: 0.95rem;
+  max-width: 320px;
+}
+
+.datasets__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: clamp(1rem, 2vw, 1.5rem);
+}
+
+.dataset-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: 18px;
+  background: linear-gradient(150deg, rgba(226, 232, 240, 0.5) 0%, rgba(244, 249, 255, 0.85) 45%, #ffffff 100%);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dataset-card:hover,
+.dataset-card:focus {
+  outline: none;
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+}
+
+.dataset-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.dataset-card__domain {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #0f172a;
+}
+
+.dataset-card__updated {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.dataset-card__title {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #0f172a;
+}
+
+.dataset-card__summary {
+  margin: 0;
+  color: #475569;
+  line-height: 1.45;
+}
+
+.dataset-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dataset-card__tags li {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #0ea5e9;
+  background: rgba(14, 165, 233, 0.12);
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+}
+
+.dataset-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.dataset-card__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.dataset-card__stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.dataset-card__stat-label {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.dataset-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+  color: #0284c7;
+}
+
+.dataset-card__cta svg {
+  width: 1rem;
+  height: 1rem;
+}
+
 @media (max-width: 768px) {
   .dashboard__nav {
     padding: 1.75rem 1.5rem;
@@ -458,6 +670,11 @@ h1 {
   .filters__tags {
     width: 100%;
     justify-content: flex-start;
+  }
+
+  .datasets__header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 </style>
