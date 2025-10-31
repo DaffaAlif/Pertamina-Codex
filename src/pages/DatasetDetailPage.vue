@@ -107,6 +107,12 @@
                   {{ highlight }}
                 </li>
               </ul>
+
+              <footer v-if="record.sampleData?.length" class="record-card__actions">
+                <button type="button" class="record-card__download" @click="downloadCsv(record)">
+                  Download sample CSV
+                </button>
+              </footer>
             </article>
           </div>
 
@@ -216,6 +222,68 @@ const clearFilters = () => {
 
 const goBack = () => {
   router.push('/');
+};
+
+const escapeCsvValue = (value) => {
+  if (value === null || value === undefined) {
+    return '';
+  }
+
+  let stringValue;
+  if (typeof value === 'string') {
+    stringValue = value;
+  } else if (typeof value === 'number' || typeof value === 'bigint') {
+    stringValue = String(value);
+  } else if (typeof value === 'boolean') {
+    stringValue = value ? 'true' : 'false';
+  } else {
+    stringValue = JSON.stringify(value);
+  }
+
+  const escaped = stringValue.replace(/"/g, '""');
+  return /[",\n]/.test(escaped) ? `"${escaped}"` : escaped;
+};
+
+const createCsv = (rows = []) => {
+  if (!rows.length) {
+    return '';
+  }
+
+  const headers = [...Object.keys(rows[0])];
+  rows.forEach((row) => {
+    Object.keys(row).forEach((key) => {
+      if (!headers.includes(key)) {
+        headers.push(key);
+      }
+    });
+  });
+
+  const csvRows = [headers.map((header) => escapeCsvValue(header)).join(',')];
+
+  rows.forEach((row) => {
+    const values = headers.map((header) => escapeCsvValue(row[header]));
+    csvRows.push(values.join(','));
+  });
+
+  return csvRows.join('\n');
+};
+
+const downloadCsv = (record) => {
+  const rows = record?.sampleData ?? [];
+  if (!rows.length) {
+    return;
+  }
+
+  const csvContent = createCsv(rows);
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', `${record.id}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 };
 
 const formatDate = (value) => {
@@ -540,6 +608,27 @@ h1 {
   gap: 0.45rem;
   color: #334155;
   font-size: 0.95rem;
+}
+
+.record-card__actions {
+  margin-top: 1.25rem;
+}
+
+.record-card__download {
+  background: #0ea5e9;
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 0.55rem 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.record-card__download:hover,
+.record-card__download:focus-visible {
+  background: #0284c7;
+  outline: none;
 }
 
 .records__empty {
