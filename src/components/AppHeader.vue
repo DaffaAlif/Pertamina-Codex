@@ -3,24 +3,8 @@
     <div class="app-header__inner">
       <div class="app-header__brand" aria-label="Pertamina Hulu Indonesia">
         <div class="app-header__logo" aria-hidden="true">
-          <svg viewBox="0 0 120 32" role="presentation">
-            <g fill="none" fill-rule="evenodd">
-              <path
-                d="M17.8 0 8.9 9.52c-.97 1.03-.92 2.65.11 3.63l8.37 7.86c1.57 1.47 4.1.5 4.4-1.65l2.13-15.22C24.3 1.27 21.21-1.57 17.8 0z"
-                fill="#0098DA"
-              />
-              <path
-                d="M36.94 0 28.05 9.52c-.97 1.03-.92 2.65.11 3.63l8.37 7.86c1.57 1.47 4.1.5 4.4-1.65l2.13-15.22C43.44 1.27 40.35-1.57 36.94 0z"
-                fill="#ED1C24"
-              />
-              <path
-                d="M12.73 29.37c-2.47 0-3.92-2.76-2.53-4.84l12.67-18.89c1.88-2.8 6.14-1.76 6.14 1.59v17.94c0 2.31-1.87 4.2-4.2 4.2z"
-                fill="#00AA4F"
-              />
-            </g>
-          </svg>
+          <img src="../assets/logo-pertamina.png" alt="Pertamina Hulu Indonesia" height="60"/>
         </div>
-        <span class="app-header__name">Pertamina Hulu Indonesia</span>
       </div>
 
       <div class="app-header__actions">
