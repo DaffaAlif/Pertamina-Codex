@@ -1,17 +1,38 @@
 <template>
   <LoginPage v-if="!isAuthenticated" @authenticated="handleAuthenticated" />
-  <DashboardPage v-else />
+  <component v-else :is="activeComponent" v-bind="activeProps" />
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import DashboardPage from './pages/DashboardPage.vue';
+import DatasetDetailPage from './pages/DatasetDetailPage.vue';
 import LoginPage from './pages/LoginPage.vue';
+import { useRoute, useRouter } from './router/simpleRouter.js';
 
 const isAuthenticated = ref(false);
+const route = useRoute();
+const router = useRouter();
+
+const activeComponent = computed(() => {
+  if (route.value.name === 'dataset-detail') {
+    return DatasetDetailPage;
+  }
+  return DashboardPage;
+});
+
+const activeProps = computed(() => {
+  if (route.value.name === 'dataset-detail') {
+    return { datasetId: route.value.params.datasetId };
+  }
+  return {};
+});
 
 const handleAuthenticated = () => {
   isAuthenticated.value = true;
+  if (route.value.name !== 'dataset-detail') {
+    router.replace('/');
+  }
 };
 </script>
 

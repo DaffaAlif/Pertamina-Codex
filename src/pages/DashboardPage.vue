@@ -78,6 +78,9 @@
             tabindex="0"
             role="button"
             :aria-label="`${category.name} category with ${category.datasets} datasets`"
+            @click="openCategory(category)"
+            @keyup.enter="openCategory(category)"
+            @keyup.space.prevent="openCategory(category)"
           >
             <div class="category-card__icon" aria-hidden="true">
               <svg v-if="category.icon === 'cog'" viewBox="0 0 48 48">
@@ -159,22 +162,29 @@
 
 <script setup>
 import { ref } from 'vue';
+import { datasetCategories as categories, datasets as availableDatasets } from '../data/datasets.js';
+import { useRouter } from '../router/simpleRouter.js';
 
 const filterOptions = ['Value', 'Date Added', 'Usage', 'Team'];
 const labels = ['Value', 'Efficiency', 'Reliability', 'Costs', 'Sustainability'];
 const selectedFilter = ref(filterOptions[0]);
 const activeLabel = ref(labels[0]);
 
-const categories = [
-  { name: 'Production', datasets: 85, icon: 'cog' },
-  { name: 'Reservoirs', datasets: 42, icon: 'droplet' },
-  { name: 'Connectivity', datasets: 29, icon: 'network' },
-  { name: 'Exploration', datasets: 64, icon: 'radar' },
-  { name: 'Analytics', datasets: 91, icon: 'analytics' },
-  { name: 'Safety & Risk', datasets: 37, icon: 'shield' },
-  { name: 'Geospatial', datasets: 53, icon: 'globe' },
-  { name: 'Infrastructure', datasets: 48, icon: 'pipeline' },
-];
+const router = useRouter();
+
+const openCategory = (category) => {
+  const datasetId =
+    category.datasetId ||
+    availableDatasets.find(
+      (dataset) => dataset.domain.toLowerCase() === category.name.toLowerCase(),
+    )?.id;
+
+  if (!datasetId) {
+    return;
+  }
+
+  router.push(`/datasets/${encodeURIComponent(datasetId)}`);
+};
 </script>
 
 <style scoped>
@@ -426,6 +436,8 @@ h1 {
   color: #64748b;
   font-weight: 500;
 }
+
+ 
 
 @media (max-width: 768px) {
   .dashboard__nav {
