@@ -12,6 +12,7 @@ export const datasetCategories = [
 export const datasets = [
   {
     id: 'water-injection-data-2024',
+    categoryId: 'production',
     title: 'Water Injection Data 2024',
     domain: 'Production',
     owner: 'FO',
@@ -77,6 +78,7 @@ export const datasets = [
   },
   {
     id: 'production-forecast-scenarios',
+    categoryId: 'reservoirs',
     title: 'Production Forecast Scenarios',
     domain: 'Reservoirs',
     owner: 'Subsurface',
@@ -130,6 +132,7 @@ export const datasets = [
   },
   {
     id: 'pipeline-integrity-inspections',
+    categoryId: 'infrastructure',
     title: 'Pipeline Integrity Inspections',
     domain: 'Infrastructure',
     owner: 'Asset Integrity',
@@ -183,6 +186,7 @@ export const datasets = [
   },
   {
     id: 'environmental-impact-metrics',
+    categoryId: 'analytics',
     title: 'Environmental Impact Metrics',
     domain: 'Sustainability',
     owner: 'HSSE',

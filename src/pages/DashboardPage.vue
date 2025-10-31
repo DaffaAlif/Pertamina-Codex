@@ -202,6 +202,12 @@ const activeLabel = ref(labels[0]);
 const datasetCount = availableDatasets.length;
 const router = useRouter();
 
+const openCategory = (category) => {
+  const categoryId = typeof category === 'string' ? category : category?.id;
+  if (!categoryId) return;
+  router.push(`/categories/${encodeURIComponent(categoryId)}`);
+};
+
 const openDataset = (id) => {
   router.push(`/datasets/${encodeURIComponent(id)}`);
 };

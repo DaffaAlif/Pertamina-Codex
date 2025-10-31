@@ -4,6 +4,7 @@ const ROUTE_SYMBOL = Symbol('simple-route');
 const ROUTER_SYMBOL = Symbol('simple-router');
 
 const DATASET_PREFIX = '/datasets/';
+const CATEGORY_PREFIX = '/categories/';
 
 function parseRoute(path) {
   if (path.startsWith(DATASET_PREFIX)) {
@@ -11,6 +12,15 @@ function parseRoute(path) {
     return {
       name: 'dataset-detail',
       params: { datasetId },
+      path,
+    };
+  }
+
+  if (path.startsWith(CATEGORY_PREFIX)) {
+    const categoryId = decodeURIComponent(path.slice(CATEGORY_PREFIX.length));
+    return {
+      name: 'category-detail',
+      params: { categoryId },
       path,
     };
   }
@@ -87,6 +97,10 @@ export function buildPathFromRoute(to) {
 
   if (to.name === 'dataset-detail' && to.params?.datasetId) {
     return `${DATASET_PREFIX}${encodeURIComponent(to.params.datasetId)}`;
+  }
+
+  if (to.name === 'category-detail' && to.params?.categoryId) {
+    return `${CATEGORY_PREFIX}${encodeURIComponent(to.params.categoryId)}`;
   }
 
   return '/';
