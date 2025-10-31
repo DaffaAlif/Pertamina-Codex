@@ -109,7 +109,7 @@
               </ul>
 
               <footer v-if="record.sampleData?.length" class="record-card__actions">
-                <button type="button" class="record-card__download" @click="downloadCsv(record)">
+                <button type="button" class="record-card__download" @click="openRequestModal(record)">
                   Download sample CSV
                 </button>
               </footer>
@@ -128,12 +128,78 @@
         <button type="button" class="back-link back-link--emphasis" @click="goBack">Back to Discover</button>
       </div>
     </section>
+
+    <div
+      v-if="isRequestModalOpen"
+      class="request-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="request-form-title"
+    >
+      <div class="request-modal__overlay" @click="closeRequestModal" aria-hidden="true"></div>
+      <div
+        class="request-modal__dialog"
+        role="document"
+        tabindex="-1"
+        ref="requestModalDialog"
+        @keydown.esc.prevent="closeRequestModal"
+      >
+        <header class="request-modal__header">
+          <h2 id="request-form-title">Request Form</h2>
+          <button type="button" class="request-modal__close" @click="closeRequestModal" aria-label="Close request form">
+            ×
+          </button>
+        </header>
+
+        <section class="request-modal__summary" aria-live="polite">
+          <h3>{{ dataset?.title }}</h3>
+          <p v-if="selectedRecordInfo">
+            Data Type: {{ selectedRecordInfo.dataType }}, row: {{ selectedRecordInfo.rows }}, column:
+            {{ selectedRecordInfo.columns }}
+          </p>
+        </section>
+
+        <form class="request-modal__form" @submit.prevent="submitRequestForm">
+          <label class="request-modal__field">
+            <span>Project</span>
+            <input
+              v-model="requestForm.project"
+              type="text"
+              name="project"
+              required
+              placeholder="Enter project name"
+              ref="projectInput"
+            />
+            <span v-if="formErrors.project" class="request-modal__error">{{ formErrors.project }}</span>
+          </label>
+
+          <label class="request-modal__field">
+            <span>Alasan Request</span>
+            <textarea
+              v-model="requestForm.reason"
+              name="reason"
+              rows="3"
+              required
+              placeholder="Describe your reason for requesting this data"
+            ></textarea>
+            <span v-if="formErrors.reason" class="request-modal__error">{{ formErrors.reason }}</span>
+          </label>
+
+          <footer class="request-modal__actions">
+            <button type="button" class="request-modal__button request-modal__button--secondary" @click="closeRequestModal">
+              Cancel
+            </button>
+            <button type="submit" class="request-modal__button request-modal__button--primary">Request</button>
+          </footer>
+        </form>
+      </div>
+    </div>
   </main>
 </template>
 
 <script setup>
 import AppHeader from '../components/AppHeader.vue';
-import { computed, reactive, watch } from 'vue';
+import { computed, nextTick, reactive, ref, watch } from 'vue';
 import { datasets } from '../data/datasets.js';
 import { useRouter } from '../router/simpleRouter.js';
 
@@ -266,6 +332,98 @@ const createCsv = (rows = []) => {
   });
 
   return csvRows.join('\n');
+};
+
+const isRequestModalOpen = ref(false);
+const selectedRecord = ref(null);
+const requestForm = reactive({
+  project: '',
+  reason: '',
+});
+const formErrors = reactive({
+  project: '',
+  reason: '',
+});
+const requestModalDialog = ref(null);
+const projectInput = ref(null);
+
+const selectedRecordInfo = computed(() => {
+  if (!selectedRecord.value) {
+    return null;
+  }
+
+  const sampleRows = selectedRecord.value.sampleData ?? [];
+  const columnKeys = new Set();
+  sampleRows.forEach((row) => {
+    Object.keys(row ?? {}).forEach((key) => columnKeys.add(key));
+  });
+
+  return {
+    dataType: selectedRecord.value.dataType ?? dataset.value?.dataType ?? '—',
+    rows: sampleRows.length,
+    columns: columnKeys.size,
+  };
+});
+
+const resetRequestForm = () => {
+  requestForm.project = '';
+  requestForm.reason = '';
+  formErrors.project = '';
+  formErrors.reason = '';
+};
+
+const openRequestModal = (record) => {
+  selectedRecord.value = record;
+  resetRequestForm();
+  isRequestModalOpen.value = true;
+};
+
+const closeRequestModal = () => {
+  isRequestModalOpen.value = false;
+  selectedRecord.value = null;
+  resetRequestForm();
+};
+
+watch(isRequestModalOpen, (isOpen) => {
+  if (isOpen) {
+    nextTick(() => {
+      requestModalDialog.value?.focus();
+      projectInput.value?.focus();
+    });
+  }
+});
+
+const validateRequestForm = () => {
+  let valid = true;
+
+  if (!requestForm.project.trim()) {
+    formErrors.project = 'Project is required';
+    valid = false;
+  } else {
+    formErrors.project = '';
+  }
+
+  if (!requestForm.reason.trim()) {
+    formErrors.reason = 'Alasan Request is required';
+    valid = false;
+  } else {
+    formErrors.reason = '';
+  }
+
+  return valid;
+};
+
+const submitRequestForm = () => {
+  if (!selectedRecord.value) {
+    return;
+  }
+
+  if (!validateRequestForm()) {
+    return;
+  }
+
+  downloadCsv(selectedRecord.value);
+  closeRequestModal();
 };
 
 const downloadCsv = (record) => {
@@ -637,6 +795,162 @@ h1 {
   background: rgba(148, 163, 184, 0.12);
   border-radius: 16px;
   color: #475569;
+}
+
+.request-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.request-modal__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(6px);
+}
+
+.request-modal__dialog {
+  position: relative;
+  width: min(520px, 100%);
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.96) 0%, #f8fafc 100%);
+  border-radius: 22px;
+  box-shadow: 0 28px 60px rgba(15, 23, 42, 0.18);
+  padding: 2.25rem 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  z-index: 1;
+  max-height: min(92vh, 560px);
+  overflow-y: auto;
+}
+
+.request-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.request-modal__header h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  color: #0f172a;
+}
+
+.request-modal__close {
+  appearance: none;
+  border: none;
+  background: rgba(148, 163, 184, 0.18);
+  color: #0f172a;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.request-modal__close:hover,
+.request-modal__close:focus-visible {
+  background: rgba(14, 165, 233, 0.18);
+}
+
+.request-modal__summary h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #0f172a;
+}
+
+.request-modal__summary p {
+  margin: 0.4rem 0 0;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.request-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.request-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: #1f2937;
+}
+
+.request-modal__field input,
+.request-modal__field textarea {
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.95rem;
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  resize: vertical;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.request-modal__field input:focus-visible,
+.request-modal__field textarea:focus-visible {
+  outline: none;
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.18);
+}
+
+.request-modal__error {
+  color: #dc2626;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.request-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.request-modal__button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.65rem 1.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.request-modal__button--secondary {
+  background: rgba(148, 163, 184, 0.2);
+  color: #1e293b;
+}
+
+.request-modal__button--primary {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(2, 132, 199, 0.25);
+}
+
+.request-modal__button--secondary:hover,
+.request-modal__button--secondary:focus-visible {
+  background: rgba(148, 163, 184, 0.3);
+}
+
+.request-modal__button--primary:hover,
+.request-modal__button--primary:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 32px rgba(2, 132, 199, 0.35);
 }
 
 .dataset-detail__empty {
