@@ -165,6 +165,33 @@
               <li v-for="tag in dataset.tags" :key="tag">{{ tag }}</li>
             </ul>
 
+            <div
+              v-if="datasetPreviews[dataset.id]?.rows?.length"
+              class="dataset-card__preview"
+              role="region"
+              :aria-label="`${dataset.title} sample data preview`"
+            >
+              <div class="dataset-card__preview-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th v-for="header in datasetPreviews[dataset.id].headers" :key="header">
+                        {{ formatPreviewHeader(header) }}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(row, rowIndex) in datasetPreviews[dataset.id].rows" :key="rowIndex">
+                      <td v-for="header in datasetPreviews[dataset.id].headers" :key="header">
+                        {{ formatPreviewValue(row[header]) }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="dataset-card__preview-hint">Preview from {{ datasetPreviews[dataset.id].source }}</p>
+            </div>
+
             <footer class="dataset-card__footer">
               <div class="dataset-card__stat">
                 <span class="dataset-card__stat-value">{{ dataset.heroStat }}</span>
@@ -190,7 +217,7 @@
 
 <script setup>
 import AppHeader from '../components/AppHeader.vue';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { datasetCategories as categories, datasets as availableDatasets } from '../data/datasets.js';
 import { useRouter } from '../router/simpleRouter.js';
 
@@ -201,6 +228,39 @@ const activeLabel = ref(labels[0]);
 
 const datasetCount = availableDatasets.length;
 const router = useRouter();
+
+const datasetPreviews = computed(() => {
+  const previews = {};
+
+  availableDatasets.forEach((dataset) => {
+    const sampleRecord = dataset.records?.find(
+      (record) => Array.isArray(record?.sampleData) && record.sampleData.length,
+    );
+
+    if (!sampleRecord) {
+      previews[dataset.id] = { headers: [], rows: [], source: null };
+      return;
+    }
+
+    const rows = sampleRecord.sampleData.slice(0, 3).map((row) => row ?? {});
+    const headers = [];
+    rows.forEach((row) => {
+      Object.keys(row).forEach((key) => {
+        if (!headers.includes(key)) {
+          headers.push(key);
+        }
+      });
+    });
+
+    previews[dataset.id] = {
+      headers,
+      rows,
+      source: sampleRecord.label ?? 'sample record',
+    };
+  });
+
+  return previews;
+});
 
 const openCategory = (category) => {
   const categoryId = typeof category === 'string' ? category : category?.id;
@@ -223,6 +283,31 @@ const formatDate = (value) => {
     month: 'short',
     day: 'numeric',
   });
+};
+
+const formatPreviewHeader = (key) => {
+  if (!key) return '';
+  return key
+    .toString()
+    .replace(/_/g, ' ')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/\b\w/g, (match) => match.toUpperCase());
+};
+
+const formatPreviewValue = (value) => {
+  if (value === null || value === undefined || value === '') {
+    return '—';
+  }
+
+  if (typeof value === 'number') {
+    return new Intl.NumberFormat('en-US').format(value);
+  }
+
+  if (value instanceof Date) {
+    return value.toLocaleString();
+  }
+
+  return String(value);
 };
 </script>
 
@@ -527,6 +612,60 @@ h1 {
   background: rgba(14, 165, 233, 0.12);
   padding: 0.3rem 0.65rem;
   border-radius: 999px;
+}
+
+.dataset-card__preview {
+  margin-top: 1rem;
+  background: rgba(226, 232, 240, 0.35);
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dataset-card__preview-scroll {
+  overflow-x: auto;
+}
+
+.dataset-card__preview table {
+  width: 100%;
+  min-width: 360px;
+  border-collapse: collapse;
+}
+
+.dataset-card__preview th,
+.dataset-card__preview td {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.dataset-card__preview thead {
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.dataset-card__preview th {
+  font-weight: 700;
+  color: #0f172a;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+.dataset-card__preview td {
+  color: #1e293b;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.dataset-card__preview tr:last-child td {
+  border-bottom: none;
+}
+
+.dataset-card__preview-hint {
+  margin: 0;
+  font-size: 0.7rem;
+  color: #64748b;
 }
 
 .dataset-card__footer {
