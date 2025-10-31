@@ -78,6 +78,9 @@
             tabindex="0"
             role="button"
             :aria-label="`${category.name} category with ${category.datasets} datasets`"
+            @click="openCategory(category)"
+            @keyup.enter="openCategory(category)"
+            @keyup.space.prevent="openCategory(category)"
           >
             <div class="category-card__icon" aria-hidden="true">
               <svg v-if="category.icon === 'cog'" viewBox="0 0 48 48">
