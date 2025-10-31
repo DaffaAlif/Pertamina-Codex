@@ -123,6 +123,8 @@ const handleLogin = () => {
   align-items: center;
   justify-content: center;
   margin: 0 auto;
+  min-height: 100vh;
+  padding: clamp(1.5rem, 4vw, 3rem);
 }
 
 .card {

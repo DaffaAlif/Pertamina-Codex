@@ -1,29 +1,31 @@
 <template>
   <main class="dashboard" aria-labelledby="dashboard-heading">
     <header class="dashboard__nav">
-      <div class="brand" aria-label="Pertamina Hulu Indonesia">
-        <div class="logo" aria-hidden="true">
-          <svg viewBox="0 0 120 32" role="presentation">
-            <g fill="none" fill-rule="evenodd">
-              <path
-                d="M17.8 0 8.9 9.52c-.97 1.03-.92 2.65.11 3.63l8.37 7.86c1.57 1.47 4.1.5 4.4-1.65l2.13-15.22C24.3 1.27 21.21-1.57 17.8 0z"
-                fill="#0098DA"
-              />
-              <path
-                d="M36.94 0 28.05 9.52c-.97 1.03-.92 2.65.11 3.63l8.37 7.86c1.57 1.47 4.1.5 4.4-1.65l2.13-15.22C43.44 1.27 40.35-1.57 36.94 0z"
-                fill="#ED1C24"
-              />
-              <path
-                d="M12.73 29.37c-2.47 0-3.92-2.76-2.53-4.84l12.67-18.89c1.88-2.8 6.14-1.76 6.14 1.59v17.94c0 2.31-1.87 4.2-4.2 4.2z"
-                fill="#00AA4F"
-              />
-            </g>
-          </svg>
+      <div class="dashboard__nav-inner">
+        <div class="brand" aria-label="Pertamina Hulu Indonesia">
+          <div class="logo" aria-hidden="true">
+            <svg viewBox="0 0 120 32" role="presentation">
+              <g fill="none" fill-rule="evenodd">
+                <path
+                  d="M17.8 0 8.9 9.52c-.97 1.03-.92 2.65.11 3.63l8.37 7.86c1.57 1.47 4.1.5 4.4-1.65l2.13-15.22C24.3 1.27 21.21-1.57 17.8 0z"
+                  fill="#0098DA"
+                />
+                <path
+                  d="M36.94 0 28.05 9.52c-.97 1.03-.92 2.65.11 3.63l8.37 7.86c1.57 1.47 4.1.5 4.4-1.65l2.13-15.22C43.44 1.27 40.35-1.57 36.94 0z"
+                  fill="#ED1C24"
+                />
+                <path
+                  d="M12.73 29.37c-2.47 0-3.92-2.76-2.53-4.84l12.67-18.89c1.88-2.8 6.14-1.76 6.14 1.59v17.94c0 2.31-1.87 4.2-4.2 4.2z"
+                  fill="#00AA4F"
+                />
+              </g>
+            </svg>
+          </div>
+          <span class="brand__name">Pertamina Hulu Indonesia</span>
         </div>
-        <span class="brand__name">Pertamina Hulu Indonesia</span>
-      </div>
 
-      <button type="button" class="profile-button">My Profile</button>
+        <button type="button" class="profile-button">My Profile</button>
+      </div>
     </header>
 
     <section class="dashboard__content">
@@ -189,23 +191,29 @@ const categories = [
 }
 
 .dashboard {
-  width: min(1120px, 100%);
+  width: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #ffffff;
-  border-radius: 28px;
-  overflow: hidden;
-  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.12);
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: linear-gradient(180deg, rgba(226, 232, 240, 0.4) 0%, rgba(248, 250, 252, 0.85) 40%, #ffffff 100%);
+  color: #0f172a;
 }
 
 .dashboard__nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   padding: clamp(1.5rem, 3vw, 2.25rem) clamp(1.5rem, 4vw, 3rem);
   background: linear-gradient(120deg, #0f172a 0%, #1e293b 65%, #0f172a 100%);
   color: #ffffff;
+}
+
+.dashboard__nav-inner {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .brand {
@@ -247,6 +255,10 @@ const categories = [
 }
 
 .dashboard__content {
+  flex: 1;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
   padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1.5rem, 4vw, 3rem);
   display: flex;
   flex-direction: column;
@@ -416,23 +428,26 @@ h1 {
 }
 
 @media (max-width: 768px) {
-  .dashboard {
-    border-radius: 24px;
+  .dashboard__nav {
+    padding: 1.75rem 1.5rem;
   }
 
   .dashboard__content {
-    padding: 1.75rem;
+    padding: 2rem 1.75rem;
   }
 }
 
 @media (max-width: 640px) {
-  .dashboard {
-    border-radius: 20px;
+  .dashboard__nav {
+    padding: 1.5rem 1.25rem;
   }
 
-  .dashboard__nav,
   .dashboard__content {
-    padding: 1.5rem;
+    padding: 1.75rem 1.25rem;
+  }
+
+  .dashboard__nav-inner {
+    gap: 1rem;
   }
 
   .filters {
