@@ -1,5 +1,10 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import './assets/main.css';
+import { createSimpleRouter } from './router/simpleRouter.js';
 
-createApp(App).mount('#app');
+const app = createApp(App);
+const router = createSimpleRouter();
+
+app.use(router);
+app.mount('#app');
