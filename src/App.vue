@@ -6,7 +6,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import DashboardPage from './pages/DashboardPage.vue';
-import DatasetDetailPage from './pages/DatasetDetailPage.vue';
+import DatasetDetailPage from './pages/DatasetDetailsPage.vue';
 import CategoryDetailPage from './pages/CategoryDetailPage.vue';
 import LoginPage from './pages/LoginPage.vue';
 import { useRoute, useRouter } from './router/simpleRouter.js';
